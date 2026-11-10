@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Projeto académico: Casa Autónoma controlada pelo SmartHome OS.">
+  <title>Casa Autónoma — SmartHome OS</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --surface-2: #eef3f8;
+      --text: #172334;
+      --muted: #617086;
+      --line: #dce5ee;
+      --primary: #2563eb;
+      --primary-dark: #1748b5;
+      --teal: #0f9f91;
+      --amber: #d97706;
+      --red: #dc4545;
+      --shadow: 0 12px 32px rgba(22, 43, 74, .08);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+    .container { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+    header {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(255,255,255,.92); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav { display: flex; align-items: center; justify-content: space-between; min-height: 72px; gap: 24px; }
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: -.03em; }
+    .brand-mark { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 13px; background: var(--primary); color: white; font-size: 21px; }
+    .brand small { display: block; font-size: 11px; color: var(--muted); font-weight: 650; letter-spacing: .1em; text-transform: uppercase; }
+    nav { display: flex; align-items: center; gap: 23px; color: var(--muted); font-size: 14px; font-weight: 650; }
+    nav a:hover { color: var(--primary); }
+    .nav-cta { border: 0; border-radius: 10px; padding: 10px 15px; background: var(--text); color: white; cursor: pointer; font-weight: 700; }
+    .hero { padding: 76px 0 52px; overflow: hidden; }
+    .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: 54px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--primary); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 0 4px rgba(15,159,145,.12); }
+    h1 { font-size: clamp(40px, 5vw, 64px); line-height: 1.04; letter-spacing: -.055em; margin: 18px 0; }
+    h1 span { color: var(--primary); }
+    .hero p { max-width: 620px; color: var(--muted); font-size: 18px; margin: 0 0 27px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; padding: 13px 18px; border-radius: 12px; font-weight: 750; border: 1px solid transparent; cursor: pointer; transition: transform .2s, background .2s; }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary { color: white; background: var(--primary); }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-light { color: var(--text); background: white; border-color: var(--line); }
+    .hero-note { display: flex; gap: 10px; align-items: center; margin-top: 24px; color: var(--muted); font-size: 13px; }
+    .hero-note strong { color: var(--text); }
+    .dashboard {
+      background: #101d31; color: #f7fbff; border-radius: 25px; padding: 23px;
+      box-shadow: 0 25px 60px rgba(16,29,49,.22); position: relative;
+    }
+    .dashboard:before { content:""; position:absolute; width:180px; height:180px; right:-30px; top:-35px; border-radius:50%; background:rgba(37,99,235,.18); filter:blur(4px); }
+    .dash-head { position: relative; display:flex; align-items:center; justify-content:space-between; gap:12px; padding-bottom:18px; border-bottom:1px solid #2b3a50; }
+    .dash-title { font-weight:800; font-size:16px; }
+    .online { font-size:11px; font-weight:800; color:#7be0c8; background:rgba(15,159,145,.16); padding:6px 9px; border-radius:20px; }
+    .server { position:relative; display:flex; align-items:center; gap:14px; margin:18px 0; padding:15px; border:1px solid #35465e; background:#192940; border-radius:15px; }
+    .server-icon { display:grid; place-items:center; width:45px; height:45px; border-radius:12px; background:#244b8b; font-size:22px; }
+    .server strong { display:block; font-size:14px; }
+    .server small { color:#a6b7cc; font-size:12px; }
+    .server-status { margin-left:auto; width:9px; height:9px; background:#5ee0b9; border-radius:50%; }
+    .device-grid { position:relative; display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+    .device { border:1px solid #2e4058; border-radius:14px; background:#17263b; padding:14px; min-width:0; }
+    .device-top { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    .device-icon { font-size:20px; }
+    .device-state { font-size:10px; color:#8ca1bb; }
+    .device strong { display:block; font-size:13px; margin-top:10px; }
+    .device small { color:#9aacc1; font-size:11px; }
+    .mini-bar { height:4px; border-radius:8px; background:#34475e; margin-top:12px; overflow:hidden; }
+    .mini-bar span { display:block; height:100%; background:#5c9bff; border-radius:8px; }
+    .dash-footer { display:flex; justify-content:space-between; gap:10px; color:#a6b7cc; font-size:11px; padding-top:17px; }
+
+    .feature-panel { background:#fff; border:1px solid var(--line); border-radius:20px; padding:22px; box-shadow:var(--shadow); }
+    .feature-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .metric { background:var(--surface-2); border-radius:14px; padding:16px; }
+    .metric span { display:block; color:var(--muted); font-size:12px; font-weight:700; }
+    .metric strong { display:block; font-size:25px; margin:4px 0; letter-spacing:-.04em; }
+    .metric small { color:var(--muted); }
+    .demo-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:15px; }
+    .demo-btn { border:1px solid var(--line); background:white; color:var(--text); border-radius:10px; padding:10px 13px; cursor:pointer; font-weight:750; }
+    .demo-btn.primary { background:var(--primary); color:white; border-color:var(--primary); }
+    .demo-btn:hover { filter:brightness(.97); }
+    .alert-list { list-style:none; padding:0; margin:0; display:grid; gap:9px; }
+    .alert-item { display:flex; gap:10px; align-items:flex-start; background:#f8fafc; border:1px solid var(--line); border-radius:12px; padding:12px; font-size:13px; }
+    .alert-icon { font-size:18px; }
+    .history-list { margin:0; padding-left:19px; color:var(--muted); font-size:13px; }
+    .history-list li { margin:7px 0; }
+    .offline-banner { display:flex; align-items:center; gap:10px; background:#e8f8f2; color:#116149; padding:13px 15px; border-radius:12px; font-size:13px; font-weight:700; margin-bottom:18px; }
+    .offline-banner.offline { background:#fff3df; color:#8a4b08; }
+    .toggle-row { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); }
+    .toggle-row p { margin:0; color:var(--muted); font-size:13px; }
+    @media (max-width:760px) { .feature-grid { grid-template-columns:1fr; } }
+
+    section { padding: 58px 0; }
+    .section-head { max-width: 690px; margin-bottom: 28px; }
+    .section-kicker { color: var(--primary); text-transform: uppercase; font-size: 11px; font-weight: 850; letter-spacing: .14em; }
+    h2 { font-size: clamp(28px, 3.4vw, 40px); line-height:1.12; letter-spacing:-.04em; margin:9px 0 12px; }
+    .section-head p { margin:0; color:var(--muted); font-size:16px; }
+    .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .card { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:23px; box-shadow:0 4px 14px rgba(22,43,74,.025); }
+    .card-icon { width:45px; height:45px; display:grid; place-items:center; background:#eaf1ff; color:var(--primary); border-radius:13px; font-size:22px; margin-bottom:17px; }
+    .card h3 { font-size:17px; letter-spacing:-.02em; margin:0 0 8px; }
+    .card p { color:var(--muted); font-size:14px; margin:0; }
+    .soft { background:#eaf0f7; }
+    .architecture { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; align-items:stretch; }
+    .arch-step { background:white; border:1px solid var(--line); border-radius:16px; padding:20px 17px; position:relative; }
+    .arch-step:not(:last-child):after { content:"→"; position:absolute; right:-16px; top:42%; z-index:2; width:22px; height:22px; display:grid; place-items:center; border-radius:50%; background:var(--primary); color:white; font-weight:900; font-size:13px; }
+    .step-num { color:var(--primary); font-size:11px; font-weight:900; letter-spacing:.12em; }
+    .arch-step h3 { font-size:15px; margin:8px 0 6px; }
+    .arch-step p { color:var(--muted); font-size:13px; margin:0; }
+    .network-layout { display:grid; grid-template-columns:.9fr 1.1fr; gap:25px; align-items:start; }
+    .network-list { display:grid; gap:12px; }
+    .network-item { display:flex; gap:13px; align-items:flex-start; padding:16px; background:white; border:1px solid var(--line); border-radius:14px; }
+    .network-item .card-icon { flex-shrink:0; margin:0; width:39px; height:39px; font-size:19px; }
+    .network-item h3 { font-size:14px; margin:0 0 4px; }
+    .network-item p { color:var(--muted); font-size:13px; margin:0; }
+    .network-map { background:#101d31; border-radius:20px; padding:24px; color:white; min-height:370px; }
+    .network-map h3 { margin:0 0 6px; }
+    .network-map > p { color:#a6b7cc; font-size:13px; margin:0 0 22px; }
+    .map-node { border:1px solid #38506d; background:#1a2b42; border-radius:12px; padding:13px; text-align:center; font-size:13px; font-weight:700; }
+    .map-node.main { background:#214a88; border-color:#3b72c9; width:68%; margin:0 auto; }
+    .connector { width:2px; height:24px; background:#5b7da6; margin:0 auto; }
+    .branch { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; position:relative; }
+    .branch:before { content:""; height:2px; background:#5b7da6; position:absolute; top:-1px; left:16%; right:16%; }
+    .branch .map-node { font-size:11px; padding:12px 5px; }
+    .network-legend { display:flex; gap:15px; flex-wrap:wrap; color:#a6b7cc; font-size:11px; margin-top:23px; }
+    .legend-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:#5ee0b9; margin-right:5px; }
+    .security-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .security-panel { padding:25px; background:white; border:1px solid var(--line); border-radius:var(--radius); }
+    .security-panel h3 { margin:0 0 15px; font-size:18px; }
+    .check-list { list-style:none; padding:0; margin:0; display:grid; gap:12px; }
+    .check-list li { display:flex; gap:10px; color:var(--muted); font-size:14px; }
+    .check { color:var(--teal); font-weight:900; }
+    .warning { color:var(--amber); font-weight:900; }
+    .simulator { background:#101d31; color:white; border-radius:22px; padding:26px; display:grid; grid-template-columns:1fr 1fr; gap:25px; }
+    .simulator p { color:#a6b7cc; font-size:14px; margin:8px 0 18px; }
+    .sim-controls { display:grid; gap:14px; }
+    .control { background:#1a2b42; border:1px solid #344860; border-radius:13px; padding:14px; }
+    .control label { display:flex; align-items:center; justify-content:space-between; gap:12px; font-weight:650; font-size:13px; }
+    .control input[type="range"] { width:100%; accent-color:#6fa4ff; margin-top:12px; cursor:pointer; }
+    .control select { margin-top:10px; width:100%; padding:9px 10px; border-radius:8px; border:1px solid #435772; color:white; background:#101d31; }
+    .readout { display:grid; gap:12px; align-content:start; }
+    .readout-card { background:#1a2b42; border:1px solid #344860; border-radius:13px; padding:16px; }
+    .readout-card span { display:block; color:#a6b7cc; font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:800; }
+    .readout-card strong { display:block; font-size:24px; margin:3px 0; letter-spacing:-.04em; }
+    .readout-card small { color:#a6b7cc; font-size:12px; }
+    .status-pill { display:inline-flex; padding:5px 9px; border-radius:20px; font-size:11px; font-weight:800; background:rgba(15,159,145,.16); color:#7be0c8; }
+    .status-pill.alert { background:rgba(217,119,6,.16); color:#ffc16b; }
+    .status-pill.danger { background:rgba(220,69,69,.16); color:#ff9999; }
+    .flow-list { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; }
+    .flow-card { padding:20px; border-radius:16px; border:1px solid var(--line); background:white; }
+    .flow-card b { display:block; font-size:14px; margin-bottom:6px; }
+    .flow-card p { color:var(--muted); font-size:13px; margin:0; }
+    .flow-card .num { display:grid; place-items:center; width:30px; height:30px; border-radius:9px; color:var(--primary); background:#eaf1ff; font-weight:900; margin-bottom:14px; }
+    .conclusion { background:linear-gradient(125deg,#1748b5,#2563eb); color:white; padding:36px; border-radius:22px; display:flex; justify-content:space-between; gap:24px; align-items:center; }
+    .conclusion h2 { margin:0 0 8px; max-width:650px; }
+    .conclusion p { margin:0; color:#dbe8ff; max-width:700px; font-size:14px; }
+    .conclusion .btn { background:white; color:var(--primary-dark); flex-shrink:0; }
+    footer { padding:28px 0; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
+    .footer-inner { display:flex; justify-content:space-between; gap:15px; flex-wrap:wrap; }
+    @media (max-width: 900px) {
+      nav { gap:12px; } nav a { display:none; }
+      .hero-grid, .network-layout { grid-template-columns:1fr; gap:35px; }
+      .hero { padding-top:50px; }
+      .dashboard { max-width:600px; width:100%; margin:0 auto; }
+      .cards { grid-template-columns:repeat(2,1fr); }
+      .architecture { grid-template-columns:repeat(2,1fr); }
+      .arch-step:nth-child(2):after { display:none; }
+    }
+    @media (max-width: 600px) {
+      .container { width:min(100% - 28px, 1120px); }
+      .nav { min-height:64px; }
+      .brand { font-size:14px; }
+      .brand-mark { width:35px; height:35px; }
+      .nav-cta { font-size:12px; padding:9px 11px; }
+      .hero { padding:40px 0 25px; }
+      .hero p { font-size:16px; }
+      section { padding:42px 0; }
+      .cards, .security-grid, .simulator, .flow-list { grid-template-columns:1fr; }
+      .architecture { grid-template-columns:1fr; }
+      .arch-step:after { display:none !important; }
+      .dashboard { padding:16px; border-radius:19px; }
+      .device { padding:11px; }
+      .conclusion { display:block; padding:25px; }
+      .conclusion .btn { margin-top:18px; }
+      .network-map { padding:17px; }
+      .branch { gap:5px; }
+      .branch .map-node { font-size:10px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } *, *:before, *:after { transition:none !important; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <a class="brand" href="#inicio" aria-label="Casa Autónoma, início">
+        <span class="brand-mark">⌂</span>
+        <span>Casa Autónoma<small>Projeto SmartHome OS</small></span>
+      </a>
+      <nav aria-label="Navegação principal">
+        <a href="#funcionamento">Funcionamento</a>
+        <a href="#rede">Rede</a>
+        <a href="#seguranca">Segurança</a>
+        <a href="#avarias">Avarias</a>
+      </nav>
+      <a href="#melhorias">Novas funcionalidades</a>
+      <a class="nav-cta" href="#simulador">Explorar sistema ↗</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow"><span class="dot"></span> Sistemas inteligentes e redes</div>
+          <h1>Uma casa que pensa.<br><span>Uma rede que protege.</span></h1>
+          <p>A Casa Autónoma utiliza o <strong>SmartHome OS</strong>, um sistema operativo instalado num servidor central que coordena os dispositivos, interpreta dados e executa ações automaticamente.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#funcionamento">Conhecer o sistema <span>↓</span></a>
+            <a class="btn btn-light" href="#simulador">Experimentar simulação <span>↗</span></a>
+          </div>
+          <div class="hero-note"><span class="dot"></span><span><strong>Gestão centralizada</strong> · Automação · Monitorização · Segurança</span></div>
+        </div>
+        <div class="dashboard" aria-label="Painel ilustrativo da casa inteligente">
+          <div class="dash-head">
+            <div><div class="dash-title">Painel da Casa</div><small style="color:#a6b7cc">Estado do sistema em tempo real (demonstração)</small></div>
+            <span class="online">● SISTEMA ONLINE</span>
+          </div>
+          <div class="server">
+            <div class="server-icon">▤</div>
+            <div><strong>SmartHome OS</strong><small>Servidor central · Gestão local</small></div>
+            <span class="server-status"></span>
+          </div>
+          <div class="device-grid">
+            <div class="device"><div class="device-top"><span class="device-icon">💡</span><span class="device-state">ATIVO</span></div><strong>Iluminação</strong><small>Corredor · 72%</small><div class="mini-bar"><span style="width:72%"></span></div></div>
+            <div class="device"><div class="device-top"><span class="device-icon">🌡️</span><span class="device-state">AUTO</span></div><strong>Climatização</strong><small>22 °C · Conforto</small><div class="mini-bar"><span style="width:55%"></span></div></div>
+            <div class="device"><div class="device-top"><span class="device-icon">📷</span><span class="device-state">PROTEGIDO</span></div><strong>Câmaras</strong><small>2 dispositivos ligados</small><div class="mini-bar"><span style="width:100%;background:#45c9b1"></span></div></div>
+            <div class="device"><div class="device-top"><span class="device-icon">⚡</span><span class="device-state">NORMAL</span></div><strong>Energia</strong><small>Consumo moderado</small><div class="mini-bar"><span style="width:38%;background:#e7b65b"></span></div></div>
+          </div>
+          <div class="dash-footer"><span>Última verificação: há poucos segundos</span><span>● 4 grupos monitorizados</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="funcionamento">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker">01 · Funcionamento</div>
+          <h2>Como funciona uma Casa Autónoma?</h2>
+          <p>O SmartHome OS atua como o centro de decisão. Recolhe informação, aplica regras e envia comandos aos equipamentos compatíveis.</p>
+        </div>
+        <div class="cards">
+          <article class="card"><div class="card-icon">📡</div><h3>1. Recolha de dados</h3><p>Sensores de temperatura, movimento, luminosidade, fumo e abertura de portas enviam leituras para o sistema através da rede doméstica.</p></article>
+          <article class="card"><div class="card-icon">🧠</div><h3>2. Análise e decisão</h3><p>O servidor compara os dados com regras, horários e preferências. Pode, por exemplo, ligar uma luz quando deteta movimento num local escuro.</p></article>
+          <article class="card"><div class="card-icon">⚙️</div><h3>3. Execução automática</h3><p>O sistema envia comandos a luzes, ar condicionado, estores ou eletrodomésticos e confirma, quando possível, se a ação foi executada.</p></article>
+          <article class="card"><div class="card-icon">📊</div><h3>4. Monitorização</h3><p>Um painel central mostra o estado dos equipamentos, leituras recentes, consumo de energia e alertas importantes.</p></article>
+          <article class="card"><div class="card-icon">🔄</div><h3>5. Aprendizagem de padrões</h3><p>Com histórico e regras configuradas, pode ajustar horários e sugerir melhorias. As ações críticas devem continuar sujeitas a limites seguros.</p></article>
+          <article class="card"><div class="card-icon">🧩</div><h3>6. Integração</h3><p>O servidor reúne dispositivos de diferentes divisões e protocolos, usando interfaces ou gateways compatíveis sempre que necessário.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="soft">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker">02 · Fluxo de dados</div>
+          <h2>Do sensor à ação, em quatro etapas</h2>
+          <p>Este ciclo repete-se continuamente, permitindo respostas rápidas e uma gestão mais eficiente dos recursos da casa.</p>
+        </div>
+        <div class="architecture">
+          <div class="arch-step"><div class="step-num">ETAPA 01</div><h3>Dispositivos e sensores</h3><p>Recolhem medições e eventos do ambiente físico.</p></div>
+          <div class="arch-step"><div class="step-num">ETAPA 02</div><h3>Rede doméstica</h3><p>Transporta os dados por Wi-Fi, Ethernet ou protocolos IoT.</p></div>
+          <div class="arch-step"><div class="step-num">ETAPA 03</div><h3>Servidor SmartHome OS</h3><p>Valida dados, aplica regras e regista eventos.</p></div>
+          <div class="arch-step"><div class="step-num">ETAPA 04</div><h3>Atuação e feedback</h3><p>Envia comandos e verifica o resultado da ação.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="rede">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker">03 · Gestão de redes</div>
+          <h2>A rede é a infraestrutura da casa</h2>
+          <p>Uma boa arquitetura mantém os dispositivos ligados, reduz falhas de comunicação e separa os equipamentos mais sensíveis.</p>
+        </div>
+        <div class="network-layout">
+          <div class="network-list">
+            <div class="network-item"><div class="card-icon">🗂️</div><div><h3>Servidor central</h3><p>Coordena regras de automação, integra dispositivos e guarda registos localmente.</p></div></div>
+            <div class="network-item"><div class="card-icon">📶</div><div><h3>Router e pontos de acesso</h3><p>Ligam a rede interna à Internet e fornecem conectividade sem fios.</p></div></div>
+            <div class="network-item"><div class="card-icon">🔀</div><div><h3>Segmentação da rede</h3><p>Uma VLAN ou rede IoT separada pode limitar o acesso dos dispositivos ao computador pessoal e aos dados privados.</p></div></div>
+            <div class="network-item"><div class="card-icon">🩺</div><div><h3>Monitorização</h3><p>Verifica disponibilidade, latência, perdas de ligação, utilização de largura de banda e eventos anormais.</p></div></div>
+          </div>
+          <div class="network-map">
+            <h3>Topologia lógica simplificada</h3>
+            <p>Exemplo ilustrativo de uma rede doméstica gerida centralmente.</p>
+            <div class="map-node main">▤ Servidor central · SmartHome OS</div>
+            <div class="connector"></div>
+            <div class="map-node" style="max-width:78%;margin:auto">Router / Firewall</div>
+            <div class="connector"></div>
+            <div class="branch">
+              <div class="map-node">📡 Wi-Fi / AP</div>
+              <div class="map-node">🔌 Switch Ethernet</div>
+              <div class="map-node">🌐 Internet</div>
+            </div>
+            <div class="connector" style="height:17px"></div>
+            <div class="branch">
+              <div class="map-node">Sensores e luzes</div>
+              <div class="map-node">Câmaras e NAS</div>
+              <div class="map-node">PCs e telemóveis</div>
+            </div>
+            <div class="network-legend"><span><i class="legend-dot"></i>Ligação ativa (exemplo)</span><span>VLAN IoT recomendada</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="soft" id="seguranca">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker">04 · Segurança</div>
+          <h2>Proteção física e digital</h2>
+          <p>A automação melhora a vigilância, mas a segurança depende também de uma rede bem configurada, atualizações e controlo de acessos.</p>
+        </div>
+        <div class="security-grid">
+          <div class="security-panel">
+            <h3>🛡️ Segurança digital</h3>
+            <ul class="check-list">
+              <li><span class="check">✓</span><span><strong>Autenticação forte:</strong> palavras-passe únicas e autenticação multifator para contas administrativas.</span></li>
+              <li><span class="check">✓</span><span><strong>Atualizações:</strong> manter o sistema operativo, firmware e aplicações corrigidos.</span></li>
+              <li><span class="check">✓</span><span><strong>Segmentação:</strong> restringir a comunicação entre a rede IoT e os dispositivos pessoais.</span></li>
+              <li><span class="check">✓</span><span><strong>Encriptação e cópias de segurança:</strong> proteger dados e preparar recuperação após falhas.</span></li>
+            </ul>
+          </div>
+          <div class="security-panel">
+            <h3>🚨 Segurança da habitação</h3>
+            <ul class="check-list">
+              <li><span class="check">✓</span><span>Sensores de movimento e contactos de portas podem detetar eventos suspeitos.</span></li>
+              <li><span class="check">✓</span><span>Câmaras e alarmes podem gerar notificações quando uma regra é acionada.</span></li>
+              <li><span class="check">✓</span><span>Sensores de fumo, água ou gás podem emitir alertas e ativar procedimentos definidos.</span></li>
+              <li><span class="warning">!</span><span>Funções críticas devem ter mecanismos de segurança próprios e não depender apenas do servidor ou da Internet.</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="avarias">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker">05 · Diagnóstico e manutenção</div>
+          <h2>Detetar avarias antes de se agravarem</h2>
+          <p>O SmartHome OS pode comparar o comportamento atual com valores esperados e sinalizar anomalias para investigação.</p>
+        </div>
+        <div class="cards">
+          <article class="card"><div class="card-icon">📉</div><h3>Leituras anormais</h3><p>Temperaturas incoerentes, consumo elevado ou valores que não mudam durante muito tempo podem indicar um sensor avariado.</p></article>
+          <article class="card"><div class="card-icon">🔌</div><h3>Perda de comunicação</h3><p>Se um equipamento não responde ou desaparece da rede, o sistema regista a falha e pode tentar reconectar ou notificar o utilizador.</p></article>
+          <article class="card"><div class="card-icon">🧰</div><h3>Manutenção preventiva</h3><p>Históricos de consumo, ciclos de funcionamento e alertas repetidos ajudam a identificar equipamentos que precisam de inspeção.</p></article>
+        </div>
+        <div style="height:20px"></div>
+        <div class="simulator" id="simulador">
+          <div>
+            <div class="section-kicker" style="color:#8bb5ff">Simulação interativa</div>
+            <h2 style="margin-top:8px">Experimenta uma regra automática</h2>
+            <p>Altera as condições e observa a decisão ilustrativa do sistema. Esta demonstração corre apenas no navegador; não controla equipamentos reais.</p>
+            <div class="sim-controls">
+              <div class="control">
+                <label for="temperature">Temperatura interior <strong><span id="tempValue">28</span> °C</strong></label>
+                <input id="temperature" type="range" min="14" max="35" value="28" aria-label="Temperatura interior em graus Celsius">
+              </div>
+              <div class="control">
+                <label for="motion">Movimento detetado</label>
+                <select id="motion"><option value="yes">Sim</option><option value="no">Não</option></select>
+              </div>
+              <div class="control">
+                <label for="light">Luminosidade</label>
+                <select id="light"><option value="dark">Baixa</option><option value="bright">Elevada</option></select>
+              </div>
+            </div>
+          </div>
+          <div class="readout" aria-live="polite">
+            <div class="readout-card"><span>Climatização</span><strong id="climate">Ar condicionado ligado</strong><small id="climateReason">Temperatura acima do limite de 25 °C.</small></div>
+            <div class="readout-card"><span>Iluminação</span><strong id="lighting">Luz ligada</strong><small id="lightingReason">Há movimento e pouca luminosidade.</small></div>
+            <div class="readout-card"><span>Estado da automação</span><div style="margin:7px 0"><span class="status-pill" id="automationStatus">Regras executadas</span></div><small>As regras são exemplos e podem ser configuradas pelo administrador.</small></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="soft" id="melhorias">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker">06 · Funcionalidades melhoradas</div>
+          <h2>Um sistema que acompanha, alerta e ajuda a poupar</h2>
+          <p>Esta área demonstra três melhorias propostas para o SmartHome OS: monitorização energética, alertas de segurança e funcionamento local quando a Internet falha.</p>
+        </div>
+        <div class="offline-banner" id="connectionBanner"><span>●</span><span id="connectionText">Internet disponível · sistema ligado</span></div>
+        <div class="feature-grid">
+          <article class="feature-panel">
+            <div class="card-icon">⚡</div><h3>Smart Energy</h3>
+            <p style="color:var(--muted);font-size:14px">Consumo estimado dos equipamentos simulados.</p>
+            <div class="metric"><span>Consumo atual</span><strong id="energyNow">1,24 kWh</strong><small id="energyCost">Custo estimado: 0,31 €</small></div>
+            <div class="metric" style="margin-top:10px"><span>Poupança simulada</span><strong id="energySaved">18%</strong><small>Comparação ilustrativa com os equipamentos sempre ligados.</small></div>
+            <div class="demo-actions"><button class="demo-btn primary" id="saveModeBtn" type="button">Ativar modo poupança</button></div>
+          </article>
+          <article class="feature-panel">
+            <div class="card-icon">🛡️</div><h3>Smart Guardian</h3>
+            <p style="color:var(--muted);font-size:14px">Testa alertas para situações que exigem atenção.</p>
+            <div class="demo-actions" style="margin:12px 0 16px"><button class="demo-btn" type="button" data-alert="water">Simular fuga de água</button><button class="demo-btn" type="button" data-alert="heat">Simular temperatura alta</button><button class="demo-btn" type="button" data-alert="sensor">Simular sensor offline</button></div>
+            <ul class="alert-list" id="alertList" aria-live="polite"><li class="alert-item"><span class="alert-icon">✅</span><span>Não existem alertas novos. O sistema está a monitorizar os sensores simulados.</span></li></ul>
+          </article>
+          <article class="feature-panel">
+            <div class="card-icon">📶</div><h3>Modo local</h3>
+            <p style="color:var(--muted);font-size:14px">Simula uma falha de Internet e verifica o estado das funções locais.</p>
+            <div class="metric"><span>Estado da rede externa</span><strong id="internetState">Ligada</strong><small id="localState">Automatizações locais disponíveis.</small></div>
+            <div class="toggle-row"><p>Simular falha de Internet<br><small>Não altera a ligação real do computador.</small></p><button class="demo-btn" id="offlineBtn" type="button">Desligar Internet (simulação)</button></div>
+          </article>
+        </div>
+        <div class="feature-panel" style="margin-top:16px">
+          <h3 style="margin-top:0">Histórico de acontecimentos</h3>
+          <p style="color:var(--muted);font-size:14px">Registo local das ações feitas nesta demonstração.</p>
+          <ol class="history-list" id="historyList"><li>Simulação iniciada. Sistema pronto a receber eventos.</li></ol>
+          <div class="demo-actions"><button class="demo-btn" id="clearHistoryBtn" type="button">Limpar histórico</button></div>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:14px">Nota: os valores e alertas são fictícios e servem apenas para demonstrar a ideia. Esta página não está ligada a sensores, equipamentos reais nem à rede da casa.</p>
+      </div>
+    </section>
+    <section>
+      <div class="container">
+        <div class="section-head">
+          <div class="section-kicker">07 · Vantagens e limites</div>
+          <h2>Mais eficiência, com controlo humano</h2>
+          <p>A autonomia permite simplificar tarefas e responder rapidamente a eventos, mas deve ser acompanhada por monitorização e planos de contingência.</p>
+        </div>
+        <div class="flow-list">
+          <div class="flow-card"><div class="num">01</div><b>Eficiência energética</b><p>Desliga luzes em divisões vazias e ajusta a climatização às condições definidas.</p></div>
+          <div class="flow-card"><div class="num">02</div><b>Conforto e acessibilidade</b><p>Automatiza rotinas e permite gerir equipamentos a partir de uma interface central.</p></div>
+          <div class="flow-card"><div class="num">03</div><b>Resiliência</b><p>Regras locais, alimentação de reserva e procedimentos manuais ajudam a manter funções essenciais em caso de falha.</p></div>
+        </div>
+        <div style="height:28px"></div>
+        <div class="conclusion">
+          <div><h2>SmartHome OS: o cérebro da casa conectada.</h2><p>Ao combinar sensores, automação, gestão de redes e medidas de cibersegurança, a Casa Autónoma torna-se mais eficiente, monitorizável e preparada para detetar problemas.</p></div>
+          <a class="btn" href="#inicio">Voltar ao início ↑</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <span>Casa Autónoma · SmartHome OS</span>
+      <span>Projeto académico · Técnico de Especialização em Gestão de Redes</span>
+      <span>Conteúdo demonstrativo</span>
+    </div>
+  </footer>
+
+  <script>
+    // Simulação local de regras simples de automação.
+    const temperature = document.getElementById('temperature');
+    const tempValue = document.getElementById('tempValue');
+    const motion = document.getElementById('motion');
+    const light = document.getElementById('light');
+    const climate = document.getElementById('climate');
+    const climateReason = document.getElementById('climateReason');
+    const lighting = document.getElementById('lighting');
+    const lightingReason = document.getElementById('lightingReason');
+    const automationStatus = document.getElementById('automationStatus');
+
+    function updateSimulation() {
+      const temp = Number(temperature.value);
+      const hasMotion = motion.value === 'yes';
+      const isDark = light.value === 'dark';
+      tempValue.textContent = temp;
+
+      if (temp > 25) {
+        climate.textContent = 'Ar condicionado ligado';
+        climateReason.textContent = 'Temperatura acima do limite de 25 °C.';
+      } else {
+        climate.textContent = 'Ar condicionado em espera';
+        climateReason.textContent = 'Temperatura dentro do intervalo definido (25 °C ou menos).';
+      }
+
+      if (hasMotion && isDark) {
+        lighting.textContent = 'Luz ligada';
+        lightingReason.textContent = 'Há movimento e pouca luminosidade.';
+      } else if (!hasMotion) {
+        lighting.textContent = 'Luz desligada';
+        lightingReason.textContent = 'Não foi detetado movimento.';
+      } else {
+        lighting.textContent = 'Luz desligada';
+        lightingReason.textContent = 'A luminosidade ambiente é suficiente.';
+      }
+
+      automationStatus.textContent = 'Regras executadas';
+      automationStatus.className = 'status-pill';
+      if (temp >= 32) {
+        automationStatus.textContent = 'Verificar temperatura';
+        automationStatus.className = 'status-pill alert';
+      }
+    }
+
+    temperature.addEventListener('input', updateSimulation);
+    motion.addEventListener('change', updateSimulation);
+    light.addEventListener('change', updateSimulation);
+    updateSimulation();
+
+    // Demonstrações adicionais: os dados são fictícios e só existem nesta página.
+    const historyList = document.getElementById('historyList');
+    const alertList = document.getElementById('alertList');
+    const connectionBanner = document.getElementById('connectionBanner');
+    let savingMode = false;
+    let offlineMode = false;
+    function addHistory(message) {
+      const item = document.createElement('li');
+      const now = new Date().toLocaleTimeString('pt-PT', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+      item.textContent = now + ' — ' + message;
+      historyList.prepend(item);
+      while (historyList.children.length > 8) historyList.removeChild(historyList.lastElementChild);
+    }
+    function updateEnergy() {
+      const base = savingMode ? 0.78 : 1.24;
+      const cost = base * 0.25;
+      document.getElementById('energyNow').textContent = base.toFixed(2).replace('.', ',') + ' kWh';
+      document.getElementById('energyCost').textContent = 'Custo estimado: ' + cost.toFixed(2).replace('.', ',') + ' €';
+      document.getElementById('energySaved').textContent = savingMode ? '37%' : '18%';
+      document.getElementById('saveModeBtn').textContent = savingMode ? 'Desativar modo poupança' : 'Ativar modo poupança';
+    }
+    document.getElementById('saveModeBtn').addEventListener('click', () => {
+      savingMode = !savingMode;
+      updateEnergy();
+      addHistory(savingMode ? 'Modo poupança ativado; consumo simulado reduzido.' : 'Modo poupança desativado; consumo simulado normal.');
+    });
+    function showAlert(kind) {
+      const data = {
+        water: ['💧', 'Alerta de água: possível fuga detetada. Verificar a zona e a válvula de água.'],
+        heat: ['🌡️', 'Temperatura elevada: verificar o ambiente e o sensor.'],
+        sensor: ['📡', 'Sensor sem comunicação: verificar alimentação e ligação à rede.']
+      }[kind];
+      alertList.replaceChildren();
+      const li = document.createElement('li'); li.className = 'alert-item';
+      const icon = document.createElement('span'); icon.className = 'alert-icon'; icon.textContent = data[0];
+      const msg = document.createElement('span'); msg.textContent = data[1];
+      li.append(icon, msg); alertList.append(li);
+      addHistory(data[1]);
+    }
+    document.querySelectorAll('[data-alert]').forEach(button => button.addEventListener('click', () => showAlert(button.dataset.alert)));
+    document.getElementById('offlineBtn').addEventListener('click', () => {
+      offlineMode = !offlineMode;
+      connectionBanner.classList.toggle('offline', offlineMode);
+      document.getElementById('connectionText').textContent = offlineMode ? 'Internet indisponível · modo local simulado' : 'Internet disponível · sistema ligado';
+      document.getElementById('internetState').textContent = offlineMode ? 'Desligada' : 'Ligada';
+      document.getElementById('localState').textContent = offlineMode ? 'As regras locais continuam disponíveis nesta simulação; serviços externos podem não funcionar.' : 'Automatizações locais disponíveis.';
+      document.getElementById('offlineBtn').textContent = offlineMode ? 'Restaurar Internet (simulação)' : 'Desligar Internet (simulação)';
+      addHistory(offlineMode ? 'Simulada falha de Internet; funções locais mantidas na demonstração.' : 'Ligação à Internet restaurada na demonstração.');
+    });
+    document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+      historyList.replaceChildren();
+      addHistory('Histórico limpo pelo utilizador.');
+    });
+    updateEnergy();
+  </script>
+</body>
+</html>
